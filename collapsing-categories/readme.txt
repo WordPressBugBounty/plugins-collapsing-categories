@@ -5,7 +5,7 @@ Plugin URI: http://robfelty.com/plugins
 Tags: categories, sidebar, widget, navigation
 Requires at least: 5.0
 Tested up to: 6.4.1
-Stable tag: 3.0.8
+Stable tag: 3.0.9
 
 Adds a widget which uses Javascript to dynamically expand or collapse the set of
 posts for each category.
@@ -314,6 +314,12 @@ posts, but the links to the categories will still work (which is the default
 behavior in wordpress anyways)
 
 == CHANGELOG ==
+
+= 3.0.9 (2024.12.16) =
+* Cleaned up some obsolete code
+* Removed REST API
+* Fixed security issue which could allow users using the REST API to inject
+  SQL
 
 = 3.0.8 (2023.12.01) =
 * Updated deprecated `__experimentalGroup` to `group`

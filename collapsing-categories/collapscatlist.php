@@ -1,6 +1,6 @@
 <?php
 /*
-collapsing categories version: 3.0.8
+collapsing categories version: 3.0.9
 copyright 2007-2023 robert felty
 
 this file is part of collapsing categories
@@ -363,35 +363,38 @@ function get_sub_cat($cat, $categories, $parents, $posts,
   }
   return( array( $subCatLinks, $subCatCount ) );
 }
+
 function collapscat_replace_newlines($text) {
   if (strpos($text,"\n")!==false || strpos($text,"\r")!==false) {
     $text = preg_replace("/[\r\n][\r\n]?/", "<br />", $text);
   }
   return $text;
 }
+
 function collapscat_catfilter($categories) {
-  global $options;
-  extract($options);
+	global $options;
+	extract( $options );
 	$inExclusionArray = array();
-	if ( !empty($inExcludeCats )) {
-		$exterms = preg_split('/\s*[,]+\s*/',$inExcludeCats);
-		if ( count($exterms) ) {
+	if ( !empty( $inExcludeCats ) ) {
+		$exterms = preg_split('/\s*[,]+\s*/', $inExcludeCats );
+		if ( count( $exterms ) ) {
 			foreach ( $exterms as $exterm ) {
-        $sanitizedTitle = sanitize_title(trim($exterm));
-			  $inExclusionArray[] = $sanitizedTitle;
-      }
-    }
+				$sanitizedTitle = sanitize_title( trim( $exterm ) );
+				$inExclusionArray[] = $sanitizedTitle;
+			}
+		}
 	}
-  for ($i=0; $i<count($categories); $i++) {
-    if ($inExclude=='exclude' && !empty($inExclusionArray)) {
-      if (in_array($categories[$i]->slug, $inExclusionArray) OR
-          in_array($categories[$i]->term_id, $inExclusionArray)) {
-        unset($categories[$i]);
-      }
-    }
-  }
-  return $categories;
+	for ($i=0; $i<count( $categories ); $i++ ) {
+		if ($inExclude=='exclude' && !empty($inExclusionArray)) {
+			if (in_array($categories[$i]->slug, $inExclusionArray) OR
+					in_array($categories[$i]->term_id, $inExclusionArray)) {
+				unset( $categories[$i] );
+			}
+		}
+	}
+	return $categories;
 }
+
 function collapscat_orderbyfilter($orderby, $args='') {
   global $options;
   extract($options);
@@ -457,26 +460,30 @@ function get_collapscat_fromdb($args='') {
 	  $autoExpand = array();
   }
   /* Now allowing custom taxonomies, but we put this in for backwards compatibility */
-  if (isset($catTag) && !isset($taxonomy))
-    $taxonomy = $catTag;
-	if ($taxonomy == 'tag') {
-	  $taxonomyQuery= "'post_tag'";
-	} elseif ($taxonomy == 'both') {
-	  $taxonomyQuery= "'category','post_tag'";
-	} elseif ($taxonomy == 'cat') {
-	  $taxonomyQuery= "'category'";
+	if ( isset( $catTag ) && ! isset( $taxonomy ) ) {
+		$taxonomy = sanitize_title( $catTag );
 	} else {
-	  $taxonomyQuery= "'$taxonomy'";
-  }
- /* we also need to specify post types */
- $post_type_query = "AND post_type='$post_type'";
+		$taxonomy = sanitize_title( $taxonomy );
+	}
+	if ($taxonomy == 'tag') {
+		$taxonomyQuery= "'post_tag'";
+	} elseif ($taxonomy == 'both') {
+		$taxonomyQuery= "'category','post_tag'";
+	} elseif ($taxonomy == 'cat') {
+		$taxonomyQuery= "'category'";
+	} else {
+		$taxonomyQuery= "'$taxonomy'";
+	}
+	/* we also need to specify post types */
+	$post_type = sanitize_title( $post_type );
+	$post_type_query = "AND post_type='$post_type'";
 	if ($olderThan > 0) {
 		$now = date('U');
 		$olderThanQuery= "AND  date(post_date) > '" .
 			date('Y-m-d', $now-date('U',$olderThan*60*60*24)) . "'";
 	} else {
-    $olderThanQuery = '';
-  }
+		$olderThanQuery = '';
+	}
 
 
   $posts = NULL;

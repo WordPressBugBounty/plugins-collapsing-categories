@@ -4,11 +4,11 @@ Plugin Name: Collapsing Categories
 Plugin URI: https://robfelty.com/plugins
 Description: Adds a new categories widget which uses javascript to expand and collapse categories to show the posts that belong to the category <a href='https://wordpress.org/plugins/collapsing-categories/other_notes'>Manual</a> | <a href='https://wordpress.org/plugins/collapsing-categories/faq'>FAQ</a>
 Author: Robert Felty
-Version: 3.0.8
+Version: 3.0.9
 Author URI: http://robfelty.com
 Tags: sidebar, widget, categories, menu, navigation, posts
 
-Copyright 2007-2023 Robert Felty
+Copyright 2007-2024 Robert Felty
 
 This file is part of Collapsing Categories
 
@@ -31,14 +31,6 @@ This file is part of Collapsing Categories
 global $collapsCatVersion;
 $collapsCatVersion = '3.0';
 
-if (!is_admin()) {
-	//add_action( 'wp_head', array('collapsCat','get_head'));
-} else {
-	// call upgrade function if current version is lower than actual version
-	$dbversion = get_option('collapsCatVersion');
-	if (!$dbversion || $collapsCatVersion != $dbversion)
-		Collapscat::init();
-}
 add_action('init', array('CollapsCat','init_textdomain'));
 register_activation_hook(__FILE__, array('CollapsCat','init'));
 
@@ -50,37 +42,6 @@ class CollapsCat {
 		$plugin_dir = basename(dirname(__FILE__)) . '/languages/';
 		load_plugin_textdomain( 'collapsing-categories', WP_PLUGIN_DIR . $plugin_dir, $plugin_dir );
 	}
-
-	public static function init() {
-		global $collapsCatVersion;
-		include('collapsCatStyles.php');
-		$defaultStyles=compact('selected','default','block','noArrows','custom');
-		$dbversion = get_option('collapsCatVersion');
-		if ($collapsCatVersion != $dbversion && $selected!='custom') {
-			$style = $defaultStyles[$selected];
-			update_option( 'collapsCatStyle', $style);
-			update_option( 'collapsCatVersion', $collapsCatVersion);
-		}
-		if( function_exists('add_option') ) {
-			update_option( 'collapsCatOrigStyle', $style);
-			update_option( 'collapsCatDefaultStyles', $defaultStyles);
-		}
-		if (!get_option('collapsCatOptions')) {
-			include('defaults.php');
-			update_option('collapsCatOptions', $defaults);
-		}
-		if (!get_option('collapsCatStyle')) {
-			add_option( 'collapsCatStyle', $style);
-		}
-		if (!get_option('collapsCatSidebarId')) {
-			add_option( 'collapsCatSidebarId', 'sidebar');
-		}
-		if (!get_option('collapsCatVersion')) {
-			add_option( 'collapsCatVersion', $collapsCatVersion);
-		}
-
-	}
-
 
 	public static function phpArrayToJS($array,$name) {
 		/* generates javscript code to create an array from a php array */
@@ -232,16 +193,15 @@ function collapsCat($args='', $print=true, $callback=false) {
         $html .= "<li style='display:none'><script type=\"text/javascript\">\n";
         $html .= "// <![CDATA[\n";
         $html .= '/* These variables are part of the Collapsing Categories Plugin
-        *	Version: 3.0.8
-        *	$Id: collapscat.php 3004277 2023-12-01 14:45:56Z robfelty $
-        * Copyright 2007-2020 Robert Felty (robfelty.com)
+        *	Version: 3.0.9
+        *	$Id: collapscat.php 3201979 2024-12-03 21:41:54Z robfelty $
+        * Copyright 2007-2024 Robert Felty (robfelty.com)
         */' . "\n";
         $html .= "var expandSym='$expandSym';\n";
         $html .= "var collapseSym='$collapseSym';\n";
         // now we create an array indexed by the id of the ul for posts
         $html .= CollapsCat::phpArrayToJS($collapsCatItems, 'collapsItems');
         $html .= file_get_contents( dirname( __FILE__ ) . '/collapsFunctions.js' );
-	    //$html .= "widgetRoot = document.querySelector( '#$number ul.widget-collapscat-top' );";
 	    $html .= "collapsCatRoot = document.querySelector( '#widget-collapscat-$number-top' );";
         $html .= "addExpandCollapseCat(collapsCatRoot, '$expandSym', '$collapseSym', $accordion )";
         $html .= "// ]]>\n</script></li>\n";
@@ -255,17 +215,6 @@ function collapsCat($args='', $print=true, $callback=false) {
 	}
 
 }
-function collapsing_categories_rest( WP_REST_Request $request ) {
-	$parameters = $request->get_params();
-	return collapsCat( $parameters, $_COOKIE, false );
-}
-add_action( 'rest_api_init', function () {
-	register_rest_route( 'collapsing-categories/v1', '/get/', array(
-		'methods' => 'GET',
-		'permission_callback' => '__return_true',
-		'callback' => 'collapsing_categories_rest',
-	) );
-} );
 
 function create_block_collapscat_block_init() {
 		register_block_type(

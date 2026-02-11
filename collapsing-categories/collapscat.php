@@ -32,7 +32,6 @@ global $collapsCatVersion;
 $collapsCatVersion = '3.0';
 
 add_action('init', array('CollapsCat','init_textdomain'));
-register_activation_hook(__FILE__, array('CollapsCat','init'));
 
 class CollapsCat {
 
@@ -194,7 +193,7 @@ function collapsCat($args='', $print=true, $callback=false) {
         $html .= "// <![CDATA[\n";
         $html .= '/* These variables are part of the Collapsing Categories Plugin
         *	Version: 3.0.9
-        *	$Id: collapscat.php 3201979 2024-12-03 21:41:54Z robfelty $
+        *	$Id: collapscat.php 3284972 2025-04-30 14:51:47Z robfelty $
         * Copyright 2007-2024 Robert Felty (robfelty.com)
         */' . "\n";
         $html .= "var expandSym='$expandSym';\n";

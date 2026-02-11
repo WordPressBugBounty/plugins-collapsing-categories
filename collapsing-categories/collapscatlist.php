@@ -23,26 +23,28 @@ global $collapsCatItems;
 $collapsCatItems = array();
 
 
-function add_to_includes($cat, $inexclusionarray) {
-  /* add all parents to include list */
-  if (in_array($cat->slug, $inexclusionarray) ||
-      in_array($cat->term_id, $inexclusionarray)) {
-    $includes[]= $cat->term_id;
-    if ($cat->parent!=0)
-      $inexclusionarray[]= $cat->parent;
-      $cat2 = get_category($cat->parent);
-      $moreincludes = add_to_includes($cat2,$inexclusionarray);
-      if (!empty($moreincludes)) {
-        foreach ($moreincludes as $include) {
-          $includes[] =  $include;
-        }
-      }
-    $children = get_categories('child_of=' . $cat->term_id);
-    foreach ($children as $child) {
-      $includes[]= $child->term_id;
-    }
-  }
-  return($includes);
+/** add all parents to include list
+*/
+function add_to_includes( $cat, $inexclusionarray ) {
+	$includes = [];
+	if ( in_array( $cat->slug, $inexclusionarray ) ||
+			in_array( $cat->term_id, $inexclusionarray ) ) {
+		$includes[]= $cat->term_id;
+		if ( $cat->parent!=0 )
+			$inexclusionarray[]= $cat->parent;
+			$cat2 = get_category($cat->parent);
+			$moreincludes = add_to_includes( $cat2, $inexclusionarray );
+			if ( ! empty( $moreincludes ) ) {
+				foreach ( $moreincludes as $include ) {
+					$includes[] =$include;
+				}
+			}
+		$children = get_categories( 'child_of=' . $cat->term_id );
+		foreach ( $children as $child ) {
+			$includes[]= $child->term_id;
+		}
+	}
+	return $includes;
 }
 
 function getCollapsCatLink($cat,$catlink) {
@@ -231,7 +233,7 @@ function get_sub_cat($cat, $categories, $parents, $posts,
         }
         if (!in_array($cat2->term_id, $parents)) {
           // check to see if there are more subcategories under this one
-          if ($theID!='' &&  ( ! isset( $collapsCatItems[$theID] ) || ! $collapsCatItems[$theID] ) ) {
+          if ($theID!='' &&  ( ! isset( $collapsCatItems[$theID] ) || ! $collapsCatItems[$theID] ) && ! empty( $posttext2 ) ) {
             $collapsCatItems[$theID] = "<ul>$posttext2</ul>";
           }
           $subCatCount=0;

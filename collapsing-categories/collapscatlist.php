@@ -1,6 +1,6 @@
 <?php
 /*
-collapsing categories version: 3.0.9
+collapsing categories version: 3.0.12
 copyright 2007-2023 robert felty
 
 this file is part of collapsing categories
@@ -456,6 +456,10 @@ function get_collapscat_fromdb($args='') {
       $postSortColumn="ORDER BY p.menu_order";
     }
   }
+  // Whitelist postSortOrder to prevent SQL injection - only allow ASC or DESC.
+  $postSortOrder = ( 'DESC' === strtoupper( $postSortOrder ) ) ? 'DESC' : 'ASC';
+  // Whitelist catSortOrder for defense in depth.
+  $catSortOrder = ( 'DESC' === strtoupper( $catSortOrder ) ) ? 'DESC' : 'ASC';
 	if ($defaultExpand!='') {
 		$autoExpand = preg_split('/,\s*/',$defaultExpand);
   } else {
@@ -550,7 +554,7 @@ function get_collapscat_fromdb($args='') {
 		}
 	}
   // add in computed options to options array
-  $computedOptions = compact('includeCatArray', 'expandSym', 'collapseSym');
+  $computedOptions = compact('includeCatArray', 'expandSym', 'collapseSym', 'postSortOrder', 'catSortOrder');
   $options = array_merge($options, $computedOptions);
   if ($debug==1) {
     echo "<li style='display:none' >";
